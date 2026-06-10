@@ -1,0 +1,9 @@
+agent/.env
+agent/data/rag_index/
+agent/__pycache__/
+*.pyc
+*.pdf
+frontend/.env
+frontend/node_modules/
+frontend/dist/
+.DS_Store

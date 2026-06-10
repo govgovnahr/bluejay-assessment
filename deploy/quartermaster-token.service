@@ -1,0 +1,16 @@
+[Unit]
+Description=Quartermaster Token Server
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/bluejay_assessment/agent
+ExecStart=/home/ubuntu/bluejay_assessment/agent/.venv/bin/uvicorn token_server:app --host 0.0.0.0 --port 8000
+EnvironmentFile=/home/ubuntu/bluejay_assessment/agent/.env
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

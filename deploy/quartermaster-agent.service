@@ -1,0 +1,18 @@
+[Unit]
+Description=Quartermaster LiveKit Agent
+After=network.target quartermaster-token.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/bluejay_assessment/agent
+ExecStart=/home/ubuntu/bluejay_assessment/agent/.venv/bin/python main.py start
+EnvironmentFile=/home/ubuntu/bluejay_assessment/agent/.env
+Restart=on-failure
+RestartSec=10
+# Give the RAG index time to build on first run before killing
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target
