@@ -92,7 +92,7 @@ Browser mic → LiveKit Cloud → Agent (EC2)
 - **Agent connects outbound only** — WebSocket to `wss://tally-7j3xtwba.livekit.cloud`. Security group allows SSH inbound only.
 
 ### Trade-offs & Limitations
-- **Hardcoded spending data** — `get_spending_summary` returns static mock data. A real deployment would pull from a personal finance API (Plaid, etc.).
+- **Hardcoded spending data** — `get_spending_summary` returns static mock data. The intended integration is [Tally](https://www.meettally.com/), a personal finance API, which would provide real-time spending breakdowns per category.
 - **Single-instance EC2** — no auto-scaling. One concurrent call per instance. Acceptable for a demo; would need a worker pool behind a load balancer for production.
 - **RAG index not in repo** — the serialised vector index is ~50MB of binary files; it's gitignored and rebuilds automatically on first run. The PDF corpus is included at `frontend/public/cfpb-guide.pdf`.
 - **Chat context truncated at 20 messages** — bounds prompt size to prevent latency growth in long conversations. Trades some long-term memory for consistent response speed.
