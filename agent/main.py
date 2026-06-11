@@ -23,7 +23,7 @@ from livekit.agents import (
     llm,
 )
 from livekit.agents.llm import function_tool
-from livekit.plugins import deepgram, elevenlabs, openai, silero
+from livekit.plugins import deepgram, openai, silero
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
 from prompts import SYSTEM_PROMPT
