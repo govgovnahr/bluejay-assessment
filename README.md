@@ -2,6 +2,8 @@
 
 A RAG-enabled voice agent that acts as a gruff military logistics officer reviewing a soldier's personal finances. Built on LiveKit Cloud, deployed via Vercel (frontend) and AWS EC2 (agent).
 
+**Live demo:** https://bluejay-assessment.vercel.app/
+
 ---
 
 ## System Design
@@ -64,6 +66,36 @@ Browser mic → LiveKit Cloud → Agent (EC2)
 | Frontend | React + Vite + `livekit-client` |
 | Token server | Vercel serverless function (`frontend/api/token.js`) |
 | Agent hosting | AWS EC2 (systemd service) |
+
+---
+
+## Design Decisions & Assumptions
+
+### LiveKit Agent Design
+- **`@server.rtc_session()` pattern** — each browser connection gets its own isolated agent session and room. Room names are UUID-suffixed per connection to prevent stale dispatch from rooms that previously had an active agent.
+- **`session.say()` for greeting** — uses TTS-only path (~500ms) rather than `generate_reply()` (LLM + TTS, ~2–3s). This keeps the opening instant even on cold sessions.
+- **`dev` mode in production** — `livekit-agents` v1.5.18 has a silent job-dispatch bug in `start` mode; `dev` mode runs the entrypoint directly and is functionally identical for single-instance deployments.
+- **2-second warm-up before greeting** — Deepgram STT opens a WebSocket on session start. On EC2 (t3.small) this handshake takes 1–3s; the delay prevents the first user words from being dropped.
+
+### RAG Assumptions
+- **Vector store**: LlamaIndex `VectorStoreIndex` with a local filesystem store (`agent/data/rag_index/`). No external vector database — eliminates an extra managed service for a single-document corpus.
+- **Embeddings**: OpenAI `text-embedding-ada-002`. Chosen for quality and because OpenAI is already a dependency (LLM + TTS).
+- **Chunking**: LlamaIndex defaults (~1024 tokens per chunk, 20-token overlap). Works well for the CFPB document's chapter/section structure.
+- **PDF parsing**: PyMuPDF instead of pypdf — better preservation of table layout, which matters for the CFPB toolkit's structured financial tables.
+- **Retrieval**: `similarity_top_k=3` — enough context to answer specific chapter questions without overloading the prompt.
+- **Index persistence**: Built once (~30s) and saved to disk. Subsequent starts load in ~2s.
+
+### Hosting Assumptions
+- **Agent on EC2 t3.small** — 2GB RAM minimum for the turn-detector ONNX model (~900MB) plus Python overhead. t3.micro OOMs.
+- **Frontend on Vercel** — zero-config for React/Vite; the `/api/token` serverless function keeps the LiveKit API secret server-side.
+- **No token server on EC2** — the Vercel serverless function handles token generation in production. EC2 only runs the agent worker; it needs no open inbound ports.
+- **Agent connects outbound only** — WebSocket to `wss://tally-7j3xtwba.livekit.cloud`. Security group allows SSH inbound only.
+
+### Trade-offs & Limitations
+- **Hardcoded spending data** — `get_spending_summary` returns static mock data. A real deployment would pull from a personal finance API (Plaid, etc.).
+- **Single-instance EC2** — no auto-scaling. One concurrent call per instance. Acceptable for a demo; would need a worker pool behind a load balancer for production.
+- **RAG index not in repo** — the serialised vector index is ~50MB of binary files; it's gitignored and rebuilds automatically on first run. The PDF corpus is included at `frontend/public/cfpb-guide.pdf`.
+- **Chat context truncated at 20 messages** — bounds prompt size to prevent latency growth in long conversations. Trades some long-term memory for consistent response speed.
 
 ---
 
