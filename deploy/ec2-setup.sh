@@ -13,7 +13,7 @@ sudo apt-get install -y python3.11 python3.11-venv python3-pip git curl
 
 echo "==> Cloning repo (skip if already present)"
 if [ ! -d "$REPO_DIR" ]; then
-  git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git "$REPO_DIR"
+  git clone https://github.com/govgovnahr/bluejay-assessment.git "$REPO_DIR"
 fi
 cd "$REPO_DIR"
 
