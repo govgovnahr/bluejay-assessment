@@ -3,9 +3,11 @@ livekit-plugins-deepgram==1.5.18
 livekit-plugins-openai==1.5.18
 livekit-plugins-elevenlabs==1.5.18
 livekit-plugins-silero==1.5.18
+livekit-plugins-turn-detector==1.5.18
 llama-index-core
 llama-index-embeddings-openai
-pypdf
+llama-index-readers-file
+pymupdf
 fastapi
 uvicorn[standard]
 python-dotenv

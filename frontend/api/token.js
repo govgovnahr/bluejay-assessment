@@ -1,9 +1,12 @@
 import { AccessToken } from 'livekit-server-sdk'
+import { randomBytes } from 'crypto'
 
 export default async function handler(req, res) {
-  const roomName = req.query.room_name || 'quartermaster'
+  const roomName =
+    req.query.room_name ||
+    `quartermaster-${randomBytes(4).toString('hex')}`
   const identity =
-    req.query.identity || `soldier-${Math.random().toString(36).slice(2, 8)}`
+    req.query.identity || `soldier-${randomBytes(3).toString('hex')}`
 
   const at = new AccessToken(
     process.env.LIVEKIT_API_KEY,

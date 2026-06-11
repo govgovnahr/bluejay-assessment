@@ -2,6 +2,7 @@ import React, { useCallback, useRef, useState } from 'react'
 import { Room, RoomEvent, Track } from 'livekit-client'
 import { CallControls } from './components/CallControls'
 import { Transcript } from './components/Transcript'
+import { Waveform } from './components/Waveform'
 import { useTranscript } from './useTranscript'
 
 const TOKEN_ENDPOINT = import.meta.env.VITE_TOKEN_ENDPOINT || '/api/token'
@@ -30,11 +31,16 @@ const styles = {
     fontFamily: 'var(--font)',
     letterSpacing: '0.1em',
   },
-  statusBar: {
+  statusRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '12px',
+  },
+  statusLeft: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    marginBottom: '12px',
     fontSize: '11px',
     fontFamily: 'var(--font)',
     color: '#555',
@@ -53,13 +59,25 @@ export default function App() {
   const [connected, setConnected] = useState(false)
   const [connecting, setConnecting] = useState(false)
   const [error, setError] = useState(null)
+  const [statusMsg, setStatusMsg] = useState(null)
   const roomRef = useRef(null)
+  const connectingRef = useRef(false)
 
-  const { transcript, attach, detach, clear } = useTranscript()
+  const { transcript, interim, attach, detach, clear } = useTranscript()
 
   const handleStart = useCallback(async () => {
+    if (connectingRef.current) return
+    connectingRef.current = true
     setConnecting(true)
     setError(null)
+    setStatusMsg(null)
+    clear()
+
+    // Clean up any previous room first
+    if (roomRef.current) {
+      try { await roomRef.current.disconnect() } catch (_) {}
+      roomRef.current = null
+    }
 
     try {
       const res = await fetch(TOKEN_ENDPOINT)
@@ -69,7 +87,6 @@ export default function App() {
       const room = new Room({ adaptiveStream: true, dynacast: true })
       roomRef.current = room
 
-      // Play remote audio tracks as they arrive
       room.on(RoomEvent.TrackSubscribed, (track) => {
         if (track.kind === Track.Kind.Audio) {
           const el = track.attach()
@@ -92,9 +109,11 @@ export default function App() {
 
       attach(room)
       setConnected(true)
+      setStatusMsg('// CHANNEL OPEN — STANDING BY //')
     } catch (err) {
       setError(err.message)
     } finally {
+      connectingRef.current = false
       setConnecting(false)
     }
   }, [attach, detach])
@@ -106,8 +125,7 @@ export default function App() {
       roomRef.current = null
     }
     setConnected(false)
-    clear()
-  }, [detach, clear])
+  }, [detach])
 
   return (
     <div style={styles.app}>
@@ -116,17 +134,38 @@ export default function App() {
         <div style={styles.subtitle}>CFPB FIELD MANUAL · RAG-ENABLED · VOICE SECURE</div>
       </header>
 
-      <div style={styles.statusBar}>
-        <div style={styles.dot(connected)} />
-        <span>{connected ? 'CHANNEL OPEN' : 'CHANNEL CLOSED'}</span>
-        {error && (
-          <span style={{ color: '#ff3333', marginLeft: '16px' }}>ERR: {error}</span>
-        )}
+      <div style={styles.statusRow}>
+        <div style={styles.statusLeft}>
+          <div style={styles.dot(connected)} />
+          <span>{connected ? 'CHANNEL OPEN' : 'CHANNEL CLOSED'}</span>
+          {error && (
+            <span style={{ color: '#ff3333', marginLeft: '16px' }}>ERR: {error}</span>
+          )}
+        </div>
+        <Waveform room={roomRef.current} active={connected} />
       </div>
 
-      <Transcript transcript={transcript} />
+      <Transcript transcript={transcript} interim={interim} statusMsg={statusMsg} />
 
-      <div style={{ marginTop: '20px' }}>
+      <div style={{ marginTop: '12px', textAlign: 'right' }}>
+        <a
+          href="/cfpb-guide.pdf"
+          download="cfpb-your-money-your-goals.pdf"
+          style={{
+            fontFamily: 'var(--font)',
+            fontSize: '10px',
+            letterSpacing: '0.1em',
+            color: '#444',
+            textDecoration: 'none',
+            borderBottom: '1px solid #333',
+            paddingBottom: '1px',
+          }}
+        >
+          ↓ DOWNLOAD FIELD MANUAL
+        </a>
+      </div>
+
+      <div style={{ marginTop: '16px' }}>
         <CallControls
           connected={connected}
           connecting={connecting}

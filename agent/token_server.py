@@ -21,9 +21,11 @@ app.add_middleware(
 
 @app.get("/token")
 async def get_token(
-    room_name: str = "quartermaster",
+    room_name: str | None = None,
     identity: str | None = None,
 ) -> JSONResponse:
+    if room_name is None:
+        room_name = f"quartermaster-{uuid.uuid4().hex[:8]}"
     if identity is None:
         identity = f"soldier-{uuid.uuid4().hex[:6]}"
 
