@@ -80,6 +80,8 @@ class QuartermasterAgent(Agent):
         )
 
     async def on_enter(self) -> None:
+        import asyncio
+        await asyncio.sleep(2)  # let Deepgram STT connection warm up before greeting
         self.session.say(
             "Soldier. Quartermaster reporting. "
             "I have reviewed your financial deployment. "
