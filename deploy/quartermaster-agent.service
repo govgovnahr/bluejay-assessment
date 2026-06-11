@@ -7,8 +7,9 @@ Wants=network.target
 Type=simple
 User=ubuntu
 WorkingDirectory=/home/ubuntu/bluejay_assessment/agent
-ExecStart=/home/ubuntu/bluejay_assessment/agent/.venv/bin/python main.py start
+ExecStart=/home/ubuntu/bluejay_assessment/agent/.venv/bin/python main.py dev
 EnvironmentFile=/home/ubuntu/bluejay_assessment/agent/.env
+Environment=PYTHONUNBUFFERED=1
 Restart=on-failure
 RestartSec=10
 # Give the RAG index time to build on first run before killing
