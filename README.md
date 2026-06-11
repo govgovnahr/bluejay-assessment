@@ -1,6 +1,6 @@
 # Quartermaster Financial Ops
 
-A RAG-enabled voice agent that acts as a gruff military logistics officer reviewing a soldier's personal finances. Built on LiveKit Cloud, deployed via Vercel (frontend) and AWS EC2 (agent).
+A RAG-enabled voice agent that acts as a gruff military logistics officer reviewing a soldier's personal finances. Built on LiveKit Cloud, deployed via Vercel (frontend) and AWS EC2 (agent). Built with [Claude Code](https://claude.ai/code).
 
 **Live demo:** https://bluejay-assessment.vercel.app/
 
