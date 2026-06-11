@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run once on a fresh Ubuntu 22.04 EC2 instance.
+# Run once on a fresh Ubuntu 24.04 EC2 instance.
 # Usage: bash ec2-setup.sh
 set -euo pipefail
 
@@ -9,7 +9,7 @@ PDF_NAME="YOUR MONEY, YOUR GOALS_ A financial empowerment toolkit - cfpb_your-mo
 
 echo "==> Updating system packages"
 sudo apt-get update -q
-sudo apt-get install -y python3.11 python3.11-venv python3-pip git curl
+sudo apt-get install -y python3 python3-venv python3-pip git curl
 
 echo "==> Cloning repo (skip if already present)"
 if [ ! -d "$REPO_DIR" ]; then
@@ -26,7 +26,7 @@ else
 fi
 
 echo "==> Creating Python venv"
-python3.11 -m venv agent/.venv
+python3 -m venv agent/.venv
 source agent/.venv/bin/activate
 
 echo "==> Installing Python dependencies"
