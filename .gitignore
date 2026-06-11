@@ -3,6 +3,7 @@ agent/data/rag_index/
 agent/__pycache__/
 *.pyc
 *.pdf
+!frontend/public/cfpb-guide.pdf
 frontend/.env
 frontend/.env.local
 frontend/node_modules/
