@@ -33,7 +33,7 @@ load_dotenv(dotenv_path=Path(__file__).parent / ".env")
 logger = logging.getLogger("quartermaster")
 
 THIS_DIR = Path(__file__).parent
-PDF_PATH = THIS_DIR.parent / "YOUR MONEY, YOUR GOALS_ A financial empowerment toolkit - cfpb_your-money-your-goals_financial-empowerment_toolkit.pdf"
+PDF_PATH = THIS_DIR.parent / "frontend" / "public" / "cfpb-guide.pdf"
 PERSIST_DIR = THIS_DIR / "data" / "rag_index"
 
 
